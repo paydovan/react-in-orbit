@@ -3,9 +3,11 @@ import { OutlineButton } from './ui/outline-button'
 import { getPendingGoals } from '../http/get-pending-goals'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createGoalCompletion } from '../http/create-goal-completion'
+import { useAuth } from '../context/authContext'
 
 export function PendingGoals() {
   const queryClient = useQueryClient()
+  const { token } = useAuth()
 
   const { data } = useQuery({
     queryKey: ['pending-goals'],
@@ -16,7 +18,7 @@ export function PendingGoals() {
   if (!data) return null
 
   async function handleCompleteGoal(goalId: string) {
-    await createGoalCompletion(goalId)
+    await createGoalCompletion(goalId, token)
 
     queryClient.invalidateQueries({ queryKey: ['summary'] })
     queryClient.invalidateQueries({ queryKey: ['pending-goals'] })

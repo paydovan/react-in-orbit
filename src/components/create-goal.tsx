@@ -18,6 +18,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createGoal } from '../http/create-goal'
 import { useQueryClient } from '@tanstack/react-query'
+import { useAuth } from '../context/authContext'
 
 const createGoalForm = z.object({
   title: z.string().min(1, 'Informe a atividade que deseja realizar'),
@@ -28,6 +29,7 @@ type CreateGoalForm = z.infer<typeof createGoalForm>
 
 export function CreateGoal() {
   const queryClient = useQueryClient()
+  const { token, user } = useAuth()
 
   const { register, control, handleSubmit, formState, reset } =
     useForm<CreateGoalForm>({
@@ -36,8 +38,10 @@ export function CreateGoal() {
 
   async function handleCreateGoal(data: CreateGoalForm) {
     await createGoal({
+      userId: user?.id,
       title: data.title,
       desiredWeeklyFrequency: data.desiredWeeklyFrequency,
+      token,
     })
 
     queryClient.invalidateQueries({ queryKey: ['summary'] })
@@ -107,7 +111,7 @@ export function CreateGoal() {
                         <span className="text-zinc-300 text-sm font-medium leading-none">
                           2x na semana
                         </span>
-                        <span className="text-lg leading-none">🙂</span>
+                        <span className="text-lg leading-none">😐</span>
                       </RadioGroupItem>
 
                       <RadioGroupItem value="3">
@@ -115,7 +119,7 @@ export function CreateGoal() {
                         <span className="text-zinc-300 text-sm font-medium leading-none">
                           3x na semana
                         </span>
-                        <span className="text-lg leading-none">🙂</span>
+                        <span className="text-lg leading-none">😎</span>
                       </RadioGroupItem>
 
                       <RadioGroupItem value="4">
@@ -123,7 +127,7 @@ export function CreateGoal() {
                         <span className="text-zinc-300 text-sm font-medium leading-none">
                           4x na semana
                         </span>
-                        <span className="text-lg leading-none">🙂</span>
+                        <span className="text-lg leading-none">😜</span>
                       </RadioGroupItem>
 
                       <RadioGroupItem value="5">
@@ -131,7 +135,7 @@ export function CreateGoal() {
                         <span className="text-zinc-300 text-sm font-medium leading-none">
                           5x na semana
                         </span>
-                        <span className="text-lg leading-none">🙂</span>
+                        <span className="text-lg leading-none">🤨</span>
                       </RadioGroupItem>
 
                       <RadioGroupItem value="6">
@@ -139,7 +143,7 @@ export function CreateGoal() {
                         <span className="text-zinc-300 text-sm font-medium leading-none">
                           6x na semana
                         </span>
-                        <span className="text-lg leading-none">🙂</span>
+                        <span className="text-lg leading-none">🤯</span>
                       </RadioGroupItem>
 
                       <RadioGroupItem value="7">
@@ -147,7 +151,7 @@ export function CreateGoal() {
                         <span className="text-zinc-300 text-sm font-medium leading-none">
                           Todos dias da semana
                         </span>
-                        <span className="text-lg leading-none">🙂</span>
+                        <span className="text-lg leading-none">🔥</span>
                       </RadioGroupItem>
                     </RadioGroup>
                   )

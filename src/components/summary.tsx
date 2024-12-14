@@ -1,6 +1,6 @@
 import { CheckCircle2, Plus } from 'lucide-react'
 import { Button } from './ui/button'
-import { DialogTrigger } from './ui/dialog'
+import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
 import { InOrbitIcon } from './in-orbit-icon'
 import { Progress, ProgressIndicator } from './ui/progress-bar'
 import { Separator } from './ui/separator'
@@ -9,21 +9,29 @@ import { getSummary } from '../http/get-summary'
 import dayjs from 'dayjs'
 import ptBR from 'dayjs/locale/pt-br'
 import { PendingGoals } from './pending-goals'
+import { CreateGoal } from './create-goal'
+import { Loader } from './ui/loader'
+import { EmptyGoals } from './empty-goals'
 
 dayjs.locale(ptBR)
 
 export function Summary() {
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['summary'],
     queryFn: getSummary,
     staleTime: 1000 * 60, // 60 segundos
   })
 
-  if (!data) return null
+  if (isLoading) {
+    return <Loader />
+  }
+
+  if (!data || data.total <= 0) {
+    return <EmptyGoals />
+  }
 
   const firstDayOfWeek = dayjs().startOf('week').format('D MMM')
   const lastDayOfWeek = dayjs().endOf('week').format('D MMM')
-
   const completedPercentage = Math.round((data.completed * 100) / data.total)
 
   return (
@@ -36,12 +44,17 @@ export function Summary() {
           </span>
         </div>
 
-        <DialogTrigger asChild>
-          <Button size="sm">
-            <Plus className="size-4" />
-            Cadastrar Meta
-          </Button>
-        </DialogTrigger>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button size="sm">
+              <Plus className="size-4" />
+              Cadastrar Meta
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <CreateGoal />
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="flex flex-col gap-3">
@@ -52,8 +65,8 @@ export function Summary() {
         <div className="flex items-center justify-between text-xs text-zinc-400">
           <span>
             Você completou{' '}
-            <span className="text-zinc-100">{data?.completed}</span> de{' '}
-            <span className="text-zinc-100">{data?.total}</span> metas nessa
+            <span className="text-zinc-100">{data.completed}</span> de{' '}
+            <span className="text-zinc-100">{data.total}</span> metas nessa
             semana.
           </span>
           <span>{completedPercentage}%</span>
